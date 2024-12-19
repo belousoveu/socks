@@ -3,38 +3,46 @@ package com.github.belousovea.sockwarehouse.controller;
 import com.github.belousovea.sockwarehouse.model.dto.SocksDto;
 import com.github.belousovea.sockwarehouse.model.dto.SocksFilterDto;
 import com.github.belousovea.sockwarehouse.service.GoodsService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Collection;
 
 @RestController
 @RequestMapping("/api/socks")
 public class SocksController {
 
-    private final GoodsService goodsService;
+    private final GoodsService<SocksDto, SocksFilterDto> goodsService;
 
-    public SocksController(GoodsService goodsService) {
+    public SocksController(GoodsService<SocksDto, SocksFilterDto> goodsService) {
         this.goodsService = goodsService;
     }
 
 
     @PostMapping("/income")
-    public void income(@RequestBody SocksDto socksDto) {
+    public void income(@Valid @RequestBody SocksDto socksDto) {
         goodsService.income(socksDto);
     }
 
 
     @PostMapping("/outcome")
-    public void outcome(@RequestBody SocksDto socksDto) {
+    public void outcome(@Valid @RequestBody SocksDto socksDto) {
         goodsService.outcome(socksDto);
     }
 
     @GetMapping
-    public int findFilteredSocks(@RequestBody SocksFilterDto socksFilterDto) {
+    public long sumFilteredSocks(@Valid @RequestBody SocksFilterDto socksFilterDto) {
         return goodsService.countFilteredGoods(socksFilterDto);
     }
 
+    @GetMapping("/list")
+    public Collection<SocksDto> findFilteredSocks(@Valid @RequestBody SocksFilterDto socksFilterDto) {
+        return goodsService.findFilteredGoods(socksFilterDto);
+    }
+
     @PutMapping("/api/socks/{id}")
-    public void update(@PathVariable long id, @RequestBody SocksDto socksDto) {
+    public void update(@PathVariable long id, @Valid @RequestBody SocksDto socksDto) {
         goodsService.update(id, socksDto);
     }
 

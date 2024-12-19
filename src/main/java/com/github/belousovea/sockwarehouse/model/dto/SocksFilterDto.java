@@ -1,36 +1,42 @@
 package com.github.belousovea.sockwarehouse.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.belousovea.sockwarehouse.exception.IllegalRequestParameterException;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.util.Set;
 
 @Data
+@NoArgsConstructor
 public class SocksFilterDto implements GoodsFilterDto {
+
     private String color;
-    private int cottonContentMin;
-    private int cottonContentMax;
-    private int cottonContent;
-    private Operation operation;
+    @Min(value = 0, message = "Процент содержания хлопка не может быть меньше 0")
+    @Max(value = 100, message = "Процент содержания хлопка не может быть больше 100")
+    private Integer cottonContentMin;
+    @Min(value = 0, message = "Процент содержания хлопка не может быть меньше 0")
+    @Max(value = 100, message = "Процент содержания хлопка не может быть больше 100")
+    private Integer cottonContentMax;
+    @Min(value = 0, message = "Процент содержания хлопка не может быть меньше 0")
+    @Max(value = 100, message = "Процент содержания хлопка не может быть больше 100")
+    private Integer cottonContent;
+
+    private String operator;
+
     private boolean sortedByColor;
     private boolean sortedByCottonContent;
-    private List<SortedParams> sortedParams;
+
+    @JsonIgnore
+    private final Set<String> operators = Set.of("moreThan", "lessThan", "equals");
 
 
-    private enum Operation {
-        MORE_THAN ("moreThan"),
-        LESS_THAN ("lessThan"),
-        EQUALS ("equals");
-
-        private String operation;
-
-        Operation(String title) {
+    public void setOperator(String operator) {
+        if (!operators.contains(operator)) {
+            throw new IllegalRequestParameterException("operator", operator);
         }
-
-
     }
 
-    private enum SortedParams {
-        color,
-        cottonContent
-    }
 }

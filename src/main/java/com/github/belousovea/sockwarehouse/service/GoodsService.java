@@ -4,14 +4,18 @@ import com.github.belousovea.sockwarehouse.model.dto.GoodsDto;
 import com.github.belousovea.sockwarehouse.model.dto.GoodsFilterDto;
 import org.springframework.web.multipart.MultipartFile;
 
-public interface GoodsService {
-    void income(GoodsDto dto);
+import java.util.Collection;
 
-    void outcome(GoodsDto dto);
+public interface GoodsService<T extends GoodsDto, F extends GoodsFilterDto> {
+    void income(T dto);
 
-    int countFilteredGoods(GoodsFilterDto dto);
+    void outcome(T dto);
 
-    void update(long id, GoodsDto dto);
+    long countFilteredGoods(F filterDto);
+
+    void update(long id, T dto);
 
     void batchInsert(MultipartFile file);
+
+    Collection<T> findFilteredGoods(F fFilterDto);
 }
