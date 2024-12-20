@@ -1,6 +1,7 @@
 package com.github.belousovea.sockwarehouse.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.belousovea.sockwarehouse.exception.IllegalFilterRangeException;
 import com.github.belousovea.sockwarehouse.exception.IllegalRequestParameterException;
 import com.github.belousovea.sockwarehouse.exception.TooManyFilterParametersException;
 import com.github.belousovea.sockwarehouse.exception.TooManySortingParametersException;
@@ -63,11 +64,6 @@ public class SocksFilterDto implements GoodsFilterDto {
         this.operator = operator;
     }
 
-//    public String getQueryCondition() {
-//        return  this.queryCondition;
-//
-//    }
-
     public SocksFilterDto filter() {
         validateFilterParameters();
 
@@ -104,7 +100,6 @@ public class SocksFilterDto implements GoodsFilterDto {
     public SocksFilterDto order() {
         validateOrderParameters();
         StringBuilder sb = new StringBuilder(this.queryCondition);
-//        sb.append(sb.isEmpty() ? " TRUE" :"");
         if (this.sortedByColor) {
             sb.append(" ORDER BY s.color");
         }
@@ -121,6 +116,9 @@ public class SocksFilterDto implements GoodsFilterDto {
         this.filterCondition2 = this.cottonContentMin != null && this.cottonContentMax != null;
         if (this.filterCondition1 && this.filterCondition2) {
             throw new TooManyFilterParametersException();
+        }
+        if (this.filterCondition2 && (this.cottonContentMin > this.cottonContentMax)) {
+            throw new IllegalFilterRangeException(this.cottonContentMin, this.cottonContentMax);
         }
     }
 

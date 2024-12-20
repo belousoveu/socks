@@ -20,12 +20,14 @@ public class SocksService implements GoodsService<SocksDto, SocksFilterDto> {
 
     private final SocksRepository socksRepository;
     private final SocksMapper socksMapper;
+    private final ExcelService excelService;
 
     private final int batchSize = 1000;
 
-    public SocksService(SocksRepository socksRepository, SocksMapper socksMapper) {
+    public SocksService(SocksRepository socksRepository, SocksMapper socksMapper, ExcelService excelService) {
         this.socksRepository = socksRepository;
         this.socksMapper = socksMapper;
+        this.excelService = excelService;
     }
 
     @Override
@@ -51,7 +53,7 @@ public class SocksService implements GoodsService<SocksDto, SocksFilterDto> {
             }
         }
 
-        batchSave(socks, batchSize);
+        batchSave(socks, this.batchSize);
 
     }
 
@@ -80,6 +82,12 @@ public class SocksService implements GoodsService<SocksDto, SocksFilterDto> {
 
     @Override
     public void batchInsert(MultipartFile file) {
+        if (file.isEmpty()) {
+            throw new IllegalRequestParameterException("File", file);
+        }
+
+        List<Socks> socks = excelService.getSocksList(file);
+        batchSave(socks, this.batchSize);
 
     }
 
@@ -90,5 +98,6 @@ public class SocksService implements GoodsService<SocksDto, SocksFilterDto> {
             socksRepository.saveAll(socks.subList(i, toIndex));
         }
     }
+
 
 }

@@ -4,9 +4,11 @@ import com.github.belousovea.sockwarehouse.model.dto.SocksDto;
 import com.github.belousovea.sockwarehouse.model.dto.SocksFilterDto;
 import com.github.belousovea.sockwarehouse.service.GoodsService;
 import jakarta.validation.Valid;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Collection;
 
 @RestController
@@ -46,8 +48,8 @@ public class SocksController {
         goodsService.update(id, socksDto);
     }
 
-    @PostMapping("/api/socks/batch")
-    public void batchInsert(@RequestParam MultipartFile file) {
+    @PostMapping(value= "/api/socks/batch", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public void batchInsert(@RequestParam("file") MultipartFile file) throws IOException {
         goodsService.batchInsert(file);
     }
 
