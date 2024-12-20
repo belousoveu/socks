@@ -38,14 +38,14 @@ public class SocksService implements GoodsService<SocksDto, SocksFilterDto> {
 
     @Override
     public void outcome(SocksDto dto) {
-        List<Socks> socks = socksRepository.findByColorAndCottonContent(dto.getColor(), dto.getCottonContent());
+        List<Socks> socks = socksRepository.findByColorAndCottonContentOrderById(dto.getColor(), dto.getCottonContent());
         if (socks.stream().mapToInt(Socks::getQuantity).sum() < dto.getQuantity()) {
             throw new NotEnoughGoodsException(dto);
         }
         int quantity = dto.getQuantity();
         for (Socks sock : socks) {
             if (sock.getQuantity() < quantity) {
-                quantity = sock.getQuantity();
+                quantity -= sock.getQuantity();
                 sock.setQuantity(0);
             } else {
                 sock.setQuantity(sock.getQuantity() - quantity);
