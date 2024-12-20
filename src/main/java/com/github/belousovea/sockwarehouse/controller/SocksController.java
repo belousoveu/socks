@@ -32,12 +32,12 @@ public class SocksController {
     }
 
     @GetMapping
-    public long sumFilteredSocks(@Valid @RequestBody SocksFilterDto socksFilterDto) {
+    public long sumFilteredSocks(@Valid @ModelAttribute SocksFilterDto socksFilterDto) {
         return goodsService.countFilteredGoods(socksFilterDto);
     }
 
     @GetMapping("/list")
-    public Collection<SocksDto> findFilteredSocks(@Valid @RequestBody SocksFilterDto socksFilterDto) {
+    public Collection<SocksDto> findFilteredSocks(@Valid @ModelAttribute SocksFilterDto socksFilterDto) {
         return goodsService.findFilteredGoods(socksFilterDto);
     }
 
