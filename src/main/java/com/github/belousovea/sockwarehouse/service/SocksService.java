@@ -74,7 +74,9 @@ public class SocksService implements GoodsService<SocksDto, SocksFilterDto> {
     @Override
     public void update(long id, SocksDto dto) {
         if (socksRepository.existsById(id)) {
-            socksRepository.save(socksMapper.toEntity(dto));
+            Socks updated = socksMapper.toEntity(dto);
+            updated.setId(id);
+            socksRepository.save(updated);
         } else {
             throw new IllegalRequestParameterException("Id", id);
         }

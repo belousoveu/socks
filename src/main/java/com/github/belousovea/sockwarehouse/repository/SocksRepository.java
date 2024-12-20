@@ -9,4 +9,5 @@ import java.util.List;
 public interface SocksRepository extends CustomSocksRepository, JpaRepository<Socks, Long> {
 
     List<Socks> findByColorAndCottonContentOrderById(String color, int cottonContent);
+
 }

@@ -1,15 +1,16 @@
 package com.github.belousovea.sockwarehouse.model.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Data
 @NoArgsConstructor
+@Table(indexes = {
+        @Index(name = "color_index", columnList = "color"),
+        @Index(name = "cotton_content_index", columnList = "cottonContent")
+})
 public class Socks {
 
     @Id
