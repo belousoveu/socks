@@ -1,10 +1,10 @@
 package com.github.belousovea.sockwarehouse.service;
 
 import com.github.belousovea.sockwarehouse.TestData;
-import com.github.belousovea.sockwarehouse.exception.IllegalRequestParameterException;
-import com.github.belousovea.sockwarehouse.exception.NotEnoughGoodsException;
+import com.github.belousovea.sockwarehouse.exception.*;
 import com.github.belousovea.sockwarehouse.mapper.SocksMapper;
 import com.github.belousovea.sockwarehouse.model.dto.SocksDto;
+import com.github.belousovea.sockwarehouse.model.dto.SocksFilterDto;
 import com.github.belousovea.sockwarehouse.model.entity.Socks;
 import com.github.belousovea.sockwarehouse.repository.SocksRepository;
 import org.junit.jupiter.api.BeforeAll;
@@ -26,11 +26,10 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @Testcontainers
 @SpringBootTest
-//@Import(SocksService.class)
 class SocksServiceTest {
 
     @MockitoBean
@@ -45,6 +44,8 @@ class SocksServiceTest {
     //    @Autowired
     @Autowired
     private SocksService socksService;
+
+    private final List<Socks> sockslist = new ArrayList<>();
 
 
     @Container
@@ -70,6 +71,12 @@ class SocksServiceTest {
     @BeforeEach
     void setUp() {
         socksRepository.deleteAll();
+
+        sockslist.add(TestData.createTestSocks("Red", 75, 50));
+        sockslist.add(TestData.createTestSocks("Blue", 75, 50));
+        sockslist.add(TestData.createTestSocks("Red", 75, 50));
+        sockslist.add(TestData.createTestSocks("Red", 65, 50));
+
     }
 
     @Test
@@ -89,11 +96,7 @@ class SocksServiceTest {
 
     @Test
     void test_outcome_success() {
-        List<Socks> sockslist = new ArrayList<>();
-        sockslist.add(TestData.createTestSocks("Red", 75, 50));
-        sockslist.add(TestData.createTestSocks("Blue", 75, 50));
-        sockslist.add(TestData.createTestSocks("Red", 75, 50));
-        sockslist.add(TestData.createTestSocks("Red", 65, 50));
+
         socksRepository.saveAll(sockslist);
 
         socksService.outcome(TestData.createTestSocksDto("Red", 75, 70));
@@ -110,11 +113,7 @@ class SocksServiceTest {
 
     @Test
     void test_outcome_notEnoughQuantity() {
-        List<Socks> sockslist = new ArrayList<>();
-        sockslist.add(TestData.createTestSocks("Red", 75, 50));
-        sockslist.add(TestData.createTestSocks("Blue", 75, 50));
-        sockslist.add(TestData.createTestSocks("Red", 75, 50));
-        sockslist.add(TestData.createTestSocks("Red", 65, 50));
+
         socksRepository.saveAll(sockslist);
 
         SocksDto dto = TestData.createTestSocksDto("Red", 75, 170);
@@ -123,11 +122,140 @@ class SocksServiceTest {
     }
 
     @Test
-    void countFilteredGoods() {
+    void test_countFilteredGoods_withoutParameters() {
+        socksRepository.saveAll(sockslist);
+
+        SocksFilterDto filter = TestData.createTestFilterDto().build();
+
+        long actualQuantity = socksService.countFilteredGoods(filter);
+        assertEquals(200, actualQuantity);
+
     }
 
     @Test
-    void findFilteredGoods() {
+    void test_countFilteredGoods_moreThan() {
+
+        socksRepository.saveAll(sockslist);
+
+        SocksFilterDto filter = TestData.createTestFilterDto().color("Red").operator("moreThan").cottonContent(70).build();
+
+        long actualQuantity = socksService.countFilteredGoods(filter);
+        assertEquals(100, actualQuantity);
+    }
+
+    @Test
+    void test_countFilteredGoods_lessThan() {
+
+        socksRepository.saveAll(sockslist);
+
+        SocksFilterDto filter = TestData.createTestFilterDto().color("Red").operator("lessThan").cottonContent(70).build();
+
+        long actualQuantity = socksService.countFilteredGoods(filter);
+        assertEquals(50, actualQuantity);
+    }
+
+    @Test
+    void test_countFilteredGoods_equalsWithoutColor() {
+
+        socksRepository.saveAll(sockslist);
+
+        SocksFilterDto filter = TestData.createTestFilterDto().operator("equals").cottonContent(75).build();
+
+        long actualQuantity = socksService.countFilteredGoods(filter);
+        assertEquals(150, actualQuantity);
+    }
+
+    @Test
+    void test_countFilteredGoods_rangeWithColor() {
+
+        socksRepository.saveAll(sockslist);
+
+        SocksFilterDto filter = TestData.createTestFilterDto().color("Red").cottonContentMin(70).cottonContentMax(80).build();
+
+        long actualQuantity = socksService.countFilteredGoods(filter);
+        assertEquals(100, actualQuantity);
+    }
+
+    @Test
+    void test_countFilteredGoods_rangeWithoutColor() {
+
+        socksRepository.saveAll(sockslist);
+
+        SocksFilterDto filter = TestData.createTestFilterDto().cottonContentMin(70).cottonContentMax(80).build();
+
+        long actualQuantity = socksService.countFilteredGoods(filter);
+        assertEquals(150, actualQuantity);
+    }
+
+    @Test
+    void test_countFilteredGoods_rangeWithEmptyResult() {
+
+        socksRepository.saveAll(sockslist);
+
+        SocksFilterDto filter = TestData.createTestFilterDto().cottonContentMin(20).cottonContentMax(50).build();
+
+        long actualQuantity = socksService.countFilteredGoods(filter);
+        assertEquals(0, actualQuantity);
+    }
+
+    @Test
+    void test_countFilteredGoods_tooManyFiltersConditional() {
+
+        socksRepository.saveAll(sockslist);
+
+        SocksFilterDto filter = TestData.createTestFilterDto()
+                .operator("equals").cottonContent(75)
+                .cottonContentMin(70).cottonContentMax(80).build();
+
+        assertThrows(TooManyFilterParametersException.class, () -> socksService.countFilteredGoods(filter));
+    }
+
+    @Test
+    void test_countFilteredGoods_invalidRange() {
+
+        socksRepository.saveAll(sockslist);
+
+        SocksFilterDto filter = TestData.createTestFilterDto()
+                .cottonContentMin(70).cottonContentMax(60).build();
+
+        assertThrows(IllegalFilterRangeException.class, () -> socksService.countFilteredGoods(filter));
+    }
+
+    @Test
+    void test_findFilteredGoods_orderedByColor() {
+        socksRepository.saveAll(sockslist);
+
+        SocksFilterDto filter = TestData.createTestFilterDto().sortedByColor(true).build();
+
+        List<SocksDto> actualList = socksService.findFilteredGoods(filter).stream().toList();
+
+        assertEquals(4, actualList.size());
+        assertEquals("Blue", actualList.get(0).getColor());
+        assertEquals("Red", actualList.get(1).getColor());
+    }
+
+    @Test
+    void test_findFilteredGoods_orderedByCottonContent() {
+        socksRepository.saveAll(sockslist);
+
+        SocksFilterDto filter = TestData.createTestFilterDto().sortedByCottonContent(true).build();
+
+        List<SocksDto> actualList = socksService.findFilteredGoods(filter).stream().toList();
+
+        assertEquals(4, actualList.size());
+        assertEquals(65, actualList.get(0).getCottonContent());
+        assertEquals(75, actualList.get(1).getCottonContent());
+    }
+
+    @Test
+    void test_findFilteredGoods_tooManyOrders() {
+        socksRepository.saveAll(sockslist);
+
+        SocksFilterDto filter = TestData.createTestFilterDto()
+                .sortedByColor(true)
+                .sortedByCottonContent(true).build();
+
+        assertThrows(TooManySortingParametersException.class, () -> socksService.findFilteredGoods(filter));
     }
 
     @Test
@@ -175,6 +303,20 @@ class SocksServiceTest {
         assertEquals(expected.size(), actual.size());
         assertEquals(expected.get(0).getColor(), actual.get(0).getColor());
         assertEquals(expected.get(0).getQuantity(), actual.get(0).getQuantity());
+
+    }
+
+    @Test
+    void test_batchInsert_emptyFile() {
+        List<Socks> expected = new ArrayList<>();
+        expected.add(TestData.createTestSocks("Red", 75, 50));
+        expected.add(TestData.createTestSocks("Blue", 75, 50));
+        when(excelService.getSocksList(any(MultipartFile.class))).thenReturn(expected);
+        MultipartFile file = TestData.getMockExcelFile(new byte[0]);
+
+        assertThrows(IllegalRequestParameterException.class, () -> socksService.batchInsert(file));
+
+        verify(excelService, times(0)).getSocksList(any(MultipartFile.class));
 
     }
 

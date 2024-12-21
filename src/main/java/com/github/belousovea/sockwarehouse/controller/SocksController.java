@@ -8,7 +8,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.Collection;
 
 @RestController
@@ -21,12 +20,10 @@ public class SocksController {
         this.goodsService = goodsService;
     }
 
-
     @PostMapping("/income")
     public void income(@Valid @RequestBody SocksDto socksDto) {
         goodsService.income(socksDto);
     }
-
 
     @PostMapping("/outcome")
     public void outcome(@Valid @RequestBody SocksDto socksDto) {
@@ -34,22 +31,24 @@ public class SocksController {
     }
 
     @GetMapping
-    public long sumFilteredSocks(@Valid @ModelAttribute SocksFilterDto socksFilterDto) {
+    public long sumFilteredSocks(@ModelAttribute SocksFilterDto socksFilterDto) {
         return goodsService.countFilteredGoods(socksFilterDto);
     }
 
+    //В условиях этого эндпойнта нет, конечно, но не тогда непонятно, где должна быть реализована сортировка
+    //Никакие другие эндпойнты, указанные в задании не предполагают возвращения коллекции.
     @GetMapping("/list")
-    public Collection<SocksDto> findFilteredSocks(@Valid @ModelAttribute SocksFilterDto socksFilterDto) {
+    public Collection<SocksDto> findFilteredSocks(@ModelAttribute SocksFilterDto socksFilterDto) {
         return goodsService.findFilteredGoods(socksFilterDto);
     }
 
-    @PutMapping("/api/socks/{id}")
+    @PutMapping("/{id}")
     public void update(@PathVariable long id, @Valid @RequestBody SocksDto socksDto) {
         goodsService.update(id, socksDto);
     }
 
-    @PostMapping(value= "/api/socks/batch", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public void batchInsert(@RequestParam("file") MultipartFile file) throws IOException {
+    @PostMapping(value = "/batch", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public void batchInsert(@RequestParam("file") MultipartFile file) {
         goodsService.batchInsert(file);
     }
 

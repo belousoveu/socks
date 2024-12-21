@@ -1,6 +1,7 @@
 package com.github.belousovea.sockwarehouse;
 
 import com.github.belousovea.sockwarehouse.model.dto.SocksDto;
+import com.github.belousovea.sockwarehouse.model.dto.SocksFilterDto;
 import com.github.belousovea.sockwarehouse.model.entity.Socks;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -101,4 +102,56 @@ public class TestData {
         socks.setQuantity(Quantity);
         return socks;
     }
+
+    public static MockFilterDto createTestFilterDto() {
+        return new MockFilterDto();
+    }
+
+    public static class MockFilterDto {
+        SocksFilterDto dto;
+
+        public MockFilterDto() {
+            this.dto = new SocksFilterDto();
+        }
+
+        public MockFilterDto color(String color) {
+            this.dto.setColor(color);
+            return this;
+        }
+
+        public MockFilterDto cottonContent(int cottonContent) {
+            this.dto.setCottonContent(cottonContent);
+            return this;
+        }
+
+        public MockFilterDto cottonContentMin(int cottonContentMin) {
+            this.dto.setCottonContentMin(cottonContentMin);
+            return this;
+        }
+
+        public MockFilterDto cottonContentMax(int cottonContentMax) {
+            this.dto.setCottonContentMax(cottonContentMax);
+            return this;
+        }
+
+        public MockFilterDto operator(String operator) {
+            this.dto.setOperator(operator);
+            return this;
+        }
+
+        public MockFilterDto sortedByColor(boolean sortedByColor) {
+            this.dto.setSortedByColor(sortedByColor);
+            return this;
+        }
+
+        public MockFilterDto sortedByCottonContent(boolean sortedByCottonContent) {
+            this.dto.setSortedByCottonContent(sortedByCottonContent);
+            return this;
+        }
+
+        public SocksFilterDto build() {
+            return this.dto;
+        }
+    }
+
 }

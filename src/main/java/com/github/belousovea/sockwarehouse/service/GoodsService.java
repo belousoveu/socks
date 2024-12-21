@@ -4,7 +4,6 @@ import com.github.belousovea.sockwarehouse.model.dto.GoodsDto;
 import com.github.belousovea.sockwarehouse.model.dto.GoodsFilterDto;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.Collection;
 
 public interface GoodsService<T extends GoodsDto, F extends GoodsFilterDto> {
@@ -16,7 +15,7 @@ public interface GoodsService<T extends GoodsDto, F extends GoodsFilterDto> {
 
     void update(long id, T dto);
 
-    void batchInsert(MultipartFile file) throws IOException;
+    void batchInsert(MultipartFile file);
 
     Collection<T> findFilteredGoods(F fFilterDto);
 }

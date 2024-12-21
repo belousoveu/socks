@@ -1,6 +1,9 @@
 package com.github.belousovea.sockwarehouse.model.dto;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -8,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SocksDto implements GoodsDto {
 
-    @NotNull
+    @NotNull(message = "Название не может быть пустым")
     private String color;
 
     @Min(value = 0, message = "Процент содержания хлопка не может быть меньше 0")

@@ -59,7 +59,6 @@ public class SocksService implements GoodsService<SocksDto, SocksFilterDto> {
 
     @Override
     public long countFilteredGoods(SocksFilterDto filterDto) {
-        System.out.println("filterDto.filter().getQueryCondition() = " + filterDto.filter().getQueryCondition());
         return socksRepository.sumQuantity(filterDto.filter().getQueryCondition());
     }
 
